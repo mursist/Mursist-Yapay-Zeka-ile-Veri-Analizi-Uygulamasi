@@ -44,7 +44,7 @@ def product_recommendation():
         st.dataframe(df.iloc[[selected_index]][['product_name', 'description']])
 
     else:
-        if st.button("🎓 Örnek Tanım Getir"):
+        if st.button("Örnek Tanım Getir"):
             st.session_state['user_description'] = "Android sistemli, güçlü kamera, uzun pil ömrü olan mobil cihaz"
 
         user_description = st.text_area("Ürün Tanımını Girin:",
