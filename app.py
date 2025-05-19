@@ -3,36 +3,36 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
-import sys
+import veri_analizi as va
 
-# Arayüz ayarları
+# Modülleri içe aktar
+from modules.dashboard import add_dashboard
+from modules.sales_analysis import seasonal_analysis, price_analysis
+from modules.customer_analysis import rfm_analysis, sentiment_analysis
+from modules.advanced_analytics import profitability_analysis, trend_analysis
+
 st.set_page_config(page_title="Yapay Zeka ile Veri Analizi", layout="wide")
 
-# Gerekli modülleri içe aktar
-try:
-    import veri_analizi as va
-    from modules.utilities import create_clickable_plot
-except ImportError as e:
-    st.error(f"Modül yüklenemedi: {e}")
-    st.stop()
-
-# Ana uygulama başlığı
 st.title("Yapay Zeka ile Veri Analizi")
 
-# Sekmeleri oluştur
-tab1, tab2, tab3, tab4 = st.tabs([
+# Sekmeleri oluşturma - Ana modüller ve yeni modüller eklendi
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Ana Sayfa", 
     "Satış Tahmini", 
     "Müşteri Analizi", 
+    "Gelişmiş Analizler",
+    "Trendler",
     "Kullanım Kılavuzu"
 ])
 
-# Ana Sayfa sekmesi
+# Ana Sayfa Sekmesi
 with tab1:
     st.header("Yapay Zeka ile Veri Analizi Uygulamasına Hoş Geldiniz")
     
     st.info("Bu uygulama, Python'da geliştirilmiş veri analizi ve yapay zeka fonksiyonlarını kullanıcı dostu bir arayüz üzerinden erişilebilir hale getirmek için tasarlanmıştır.")
+    
+    # Dashboard ekle
+    add_dashboard()
     
     # Modülleri görsel kutularda göster
     st.write("### Analiz Modülleri")
@@ -44,6 +44,7 @@ with tab1:
         <div style="border:1px solid #ddd; border-radius:5px; padding:10px;">
             <h4 style="color:#1E88E5;">📈 Satış Tahmini</h4>
             <p>ARIMA ve makine öğrenmesi modelleri ile gelecek satışları tahmin edin.</p>
+            <p>Mevsimsel analizler ve trend analizleri yapın.</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -52,191 +53,142 @@ with tab1:
         <div style="border:1px solid #ddd; border-radius:5px; padding:10px;">
             <h4 style="color:#43A047;">👥 Müşteri Analizi</h4>
             <p>K-means ile müşteri segmentasyonu yapın.</p>
+            <p>RFM analizi ile değerli müşterilerinizi tanımlayın.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
         <div style="border:1px solid #ddd; border-radius:5px; padding:10px;">
-            <h4 style="color:#E53935;">🔍 Anomali Tespiti</h4>
-            <p>Isolation Forest ile anormal müşteri davranışlarını tespit edin.</p>
+            <h4 style="color:#E53935;">🔍 Gelişmiş Analizler</h4>
+            <p>Duygu analizi, sepet analizi ve karlılık analizi gibi gelişmiş analizler yapın.</p>
         </div>
         """, unsafe_allow_html=True)
 
-# Satış Tahmini sekmesi
+# Satış Tahmini Sekmesi
 with tab2:
     st.header("Zaman Serisi Analizi ve Satış Tahmini")
     
-    # Veri yükleme bölümü
-    data_container = st.container()
-    with data_container:
-        col1, col2 = st.columns([1, 1])
-        
-        with col1:
-            sales_file = st.file_uploader("CSV Dosyası Yükleyin", type="csv")
-        
-        with col2:
-            create_sample = st.button("Örnek Veri Oluştur")
+    sub_tab1, sub_tab2, sub_tab3 = st.tabs(["Temel Tahmin", "Dönemsel Analiz", "Fiyat Analizi"])
     
-    if sales_file:
-        try:
+    with sub_tab1:
+        # Mevcut satış tahmini kodu
+        sales_file = st.file_uploader("CSV Dosyası Yükleyin (veya örnek veri kullanın)", type="csv")
+        if sales_file:
             sales_data = pd.read_csv(sales_file)
-            st.session_state['sales_data'] = sales_data
-            st.success(f"{sales_file.name} başarıyla yüklendi!")
-        except Exception as e:
-            st.error(f"Dosya yüklenirken hata oluştu: {e}")
-    
-    elif create_sample:
-        try:
-            with st.spinner("Örnek veri oluşturuluyor..."):
+        else:
+            if st.button("Örnek Veri Oluştur"):
+                st.info("Örnek veri oluşturuluyor...")
                 sales_data = va.create_sample_sales_data()
+                st.success("Örnek veri oluşturuldu!")
                 st.session_state['sales_data'] = sales_data
-            st.success("Örnek veri oluşturuldu!")
-        except Exception as e:
-            st.error(f"Örnek veri oluşturulurken hata: {e}")
-    
-    # Veri varsa analiz bölümünü göster
-    if 'sales_data' in st.session_state:
-        sales_data = st.session_state['sales_data']
         
-        with st.expander("Veri Önizleme", expanded=False):
+        if 'sales_data' in st.session_state:
+            sales_data = st.session_state['sales_data']
+            st.write("Veri Önizleme:")
             st.dataframe(sales_data.head())
-        
-        # Analiz parametreleri
-        st.subheader("Analiz Parametreleri")
-        forecast_days = st.slider("Tahmin Günü Sayısı", 7, 90, 30)
-        
-        # Analizi başlat
-        if st.button("Analizi Başlat"):
-            try:
-                progress_bar = st.progress(0)
-                status_text = st.empty()
-                
-                # Zaman serisi analizi
-                status_text.text("Zaman serisi analizi yapılıyor...")
-                progress_bar.progress(25)
-                result = va.analyze_time_series(sales_data)
-                
-                # ARIMA tahmin
-                status_text.text(f"{forecast_days} günlük tahmin yapılıyor...")
-                progress_bar.progress(50)
-                forecast = va.forecast_sales(sales_data, forecast_days)
-                
-                # ML modelleri
-                status_text.text("Makine öğrenmesi modelleri eğitiliyor...")
-                progress_bar.progress(75)
-                rf_model, xgb_model = va.train_ml_sales_model(sales_data)
-                
-                progress_bar.progress(100)
-                status_text.text("Analiz tamamlandı!")
-                st.success("Tüm analizler başarıyla tamamlandı!")
-                
-                # Session state'e sonuçları kaydet
-                st.session_state['ts_result'] = result
-                st.session_state['forecast'] = forecast
-                st.session_state['forecast_days'] = forecast_days
-                
-                # Sonuçları göster
-                st.subheader("Zaman Serisi Ayrıştırma")
-                
-                # Gözlemlenen satışlar
-                fig1, ax1 = plt.subplots(figsize=(10, 6))
-                result.observed.plot(ax=ax1)
-                ax1.set_title("Gözlemlenen Satışlar")
-                ax1.grid(True, alpha=0.3)
-                create_clickable_plot(fig1, "Gözlemlenen Satışlar", "observed")
-                
-                # Trend bileşeni
-                fig2, ax2 = plt.subplots(figsize=(10, 6))
-                result.trend.plot(ax=ax2)
-                ax2.set_title("Trend Bileşeni")
-                ax2.grid(True, alpha=0.3)
-                create_clickable_plot(fig2, "Trend Bileşeni", "trend")
-                
-                # Mevsimsel bileşen
-                fig3, ax3 = plt.subplots(figsize=(10, 6))
-                result.seasonal.plot(ax=ax3)
-                ax3.set_title("Mevsimsel Bileşen")
-                ax3.grid(True, alpha=0.3)
-                create_clickable_plot(fig3, "Mevsimsel Bileşen", "seasonal")
-                
-                # Artık bileşen
-                fig4, ax4 = plt.subplots(figsize=(10, 6))
-                result.resid.plot(ax=ax4)
-                ax4.set_title("Artık Bileşeni")
-                ax4.grid(True, alpha=0.3)
-                create_clickable_plot(fig4, "Artık Bileşeni", "residual")
-                
-                # ARIMA tahmin sonuçları
-                st.subheader("ARIMA Tahmin Sonuçları")
-                
-                fig5, ax5 = plt.subplots(figsize=(12, 6))
-                # Son 90 gün + tahmin
-                ax5.plot(sales_data.set_index('date')['sales'][-90:].index, 
-                        sales_data.set_index('date')['sales'][-90:].values, 
-                        label='Geçmiş Veriler')
-                ax5.plot(forecast.index, forecast.values, color='red', label='Tahmin')
-                ax5.set_title(f'{forecast_days} Günlük Tahmin')
-                ax5.legend()
-                ax5.grid(True, alpha=0.3)
-                create_clickable_plot(fig5, f"{forecast_days} Günlük Tahmin", "forecast")
-                
-            except Exception as e:
-                st.error(f"Analiz sırasında bir hata oluştu: {e}")
-    else:
-        st.info("Lütfen bir CSV dosyası yükleyin veya örnek veri oluşturun.")
+            
+            forecast_days = st.slider("Tahmin Günü Sayısı", 7, 90, 30)
+            
+            if st.button("Analizi Başlat"):
+                st.info("Analiz yapılıyor...")
+                try:
+                    # Zaman serisi analizi
+                    with st.spinner("Zaman serisi analizi yapılıyor..."):
+                        result = va.analyze_time_series(sales_data)
+                    
+                    # ARIMA tahmin
+                    with st.spinner(f"{forecast_days} günlük tahmin yapılıyor..."):
+                        forecast = va.forecast_sales(sales_data, forecast_days)
+                    
+                    st.success("Analiz tamamlandı!")
+                    
+                    # Sonuçları göster
+                    st.subheader("Zaman Serisi Ayrıştırma")
+                    
+                    # Gözlemlenen satışlar
+                    st.write("#### Gözlemlenen Satışlar")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.observed.plot(ax=ax)
+                    st.pyplot(fig)
+                    
+                    # Trend bileşeni
+                    st.write("#### Trend Bileşeni")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.trend.plot(ax=ax)
+                    st.pyplot(fig)
+                    
+                    # Mevsimsel bileşen
+                    st.write("#### Mevsimsel Bileşen")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.seasonal.plot(ax=ax)
+                    st.pyplot(fig)
+                    
+                    # Artık bileşen
+                    st.write("#### Artık Bileşeni")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.resid.plot(ax=ax)
+                    st.pyplot(fig)
+                    
+                    # ARIMA tahmin sonuçları
+                    st.subheader("ARIMA Tahmin Sonuçları")
+                    
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    # Son 90 gün + tahmin
+                    ax.plot(sales_data.set_index('date')['sales'][-90:].index, 
+                            sales_data.set_index('date')['sales'][-90:].values, 
+                            label='Geçmiş Veriler')
+                    ax.plot(forecast.index, forecast.values, color='red', label='Tahmin')
+                    ax.set_title(f'{forecast_days} Günlük Tahmin')
+                    ax.legend()
+                    st.pyplot(fig)
+                    
+                    # Machine Learning modeli sonuçları
+                    st.subheader("Makine Öğrenmesi Model Sonuçları")
+                    with st.spinner("Makine öğrenmesi modelleri eğitiliyor..."):
+                        rf_model, xgb_model = va.train_ml_sales_model(sales_data)
+                    
+                    # Model sonuçlarını göster
+                    st.success("Modeller başarıyla eğitildi!")
+                    
+                except Exception as e:
+                    st.error(f"Analiz sırasında bir hata oluştu: {e}")
+    
+    with sub_tab2:
+        # Dönemsel analiz
+        seasonal_analysis()
+    
+    with sub_tab3:
+        # Fiyat elastikiyeti analizi
+        price_analysis()
 
-# Müşteri Analizi sekmesi
+# Müşteri Analizi Sekmesi
 with tab3:
     st.header("Müşteri Analizi")
     
-    # Alt sekmeler
-    subtab1, subtab2 = st.tabs(["Müşteri Segmentasyonu", "Anomali Tespiti"])
+    sub_tab1, sub_tab2, sub_tab3 = st.tabs(["Segmentasyon", "RFM Analizi", "Duygu Analizi"])
     
-    with subtab1:
-        st.subheader("Müşteri Segmentasyonu")
-        
-        # Veri yükleme bölümü
-        cust_data_container = st.container()
-        with cust_data_container:
-            col1, col2 = st.columns([1, 1])
-            
-            with col1:
-                customer_file = st.file_uploader("Müşteri CSV Dosyası Yükleyin", type="csv", key="cust_upload")
-            
-            with col2:
-                create_customer_sample = st.button("Örnek Müşteri Verisi Oluştur")
-        
+    with sub_tab1:
+        # Müşteri segmentasyonu
+        customer_file = st.file_uploader("Müşteri CSV Dosyası Yükleyin (veya örnek veri kullanın)", type="csv")
         if customer_file:
-            try:
-                customer_data = pd.read_csv(customer_file)
-                st.session_state['customer_data'] = customer_data
-                st.success(f"{customer_file.name} başarıyla yüklendi!")
-            except Exception as e:
-                st.error(f"Dosya yüklenirken hata oluştu: {e}")
-        
-        elif create_customer_sample:
-            try:
-                with st.spinner("Örnek müşteri verisi oluşturuluyor..."):
-                    customer_data = va.create_customer_data()
-                    st.session_state['customer_data'] = customer_data
+            customer_data = pd.read_csv(customer_file)
+        else:
+            if st.button("Örnek Müşteri Verisi Oluştur"):
+                st.info("Örnek müşteri verisi oluşturuluyor...")
+                customer_data = va.create_customer_data()
                 st.success("Örnek müşteri verisi oluşturuldu!")
-            except Exception as e:
-                st.error(f"Örnek veri oluşturulurken hata: {e}")
+                st.session_state['customer_data'] = customer_data
         
-        # Veri varsa analiz bölümünü göster
         if 'customer_data' in st.session_state:
             customer_data = st.session_state['customer_data']
+            st.write("Veri Önizleme:")
+            st.dataframe(customer_data.head())
             
-            with st.expander("Veri Önizleme", expanded=False):
-                st.dataframe(customer_data.head())
-            
-            # Analiz parametreleri
-            st.subheader("Analiz Parametreleri")
             cluster_count = st.slider("Küme Sayısı", 2, 8, 4)
             
-            # Analizi başlat
-            if st.button("Segmentasyon Analizi Başlat"):
+            if st.button("Segmentasyon Analizini Başlat"):
+                st.info("Segmentasyon analizi yapılıyor...")
                 try:
                     with st.spinner("Müşteriler segmentlere ayrılıyor..."):
                         segmented_data, kmeans_model, scaler = va.segment_customers(customer_data, cluster_count)
@@ -247,20 +199,20 @@ with tab3:
                     st.subheader("Segmentasyon Sonuçları")
                     
                     # Küme görselleştirme
-                    fig6, ax6 = plt.subplots(figsize=(10, 6))
-                    scatter = ax6.scatter(customer_data['avg_purchase_value'], 
-                                    customer_data['purchase_frequency'],
-                                    c=segmented_data['cluster'], 
-                                    cmap='viridis', 
-                                    alpha=0.6)
-                    ax6.set_xlabel('Ortalama Satın Alma Değeri')
-                    ax6.set_ylabel('Satın Alma Sıklığı')
-                    ax6.set_title('Müşteri Segmentasyonu')
-                    legend1 = ax6.legend(*scatter.legend_elements(),
-                                  title="Kümeler")
-                    ax6.add_artist(legend1)
-                    ax6.grid(True, alpha=0.3)
-                    create_clickable_plot(fig6, "Müşteri Segmentasyonu (2B)", "segments_2d")
+                    st.write("#### Küme Görselleştirmesi")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    scatter = ax.scatter(customer_data['avg_purchase_value'], 
+                                        customer_data['purchase_frequency'],
+                                        c=segmented_data['cluster'], 
+                                        cmap='viridis', 
+                                        alpha=0.6)
+                    ax.set_xlabel('Ortalama Satın Alma Değeri')
+                    ax.set_ylabel('Satın Alma Sıklığı')
+                    ax.set_title('Müşteri Segmentasyonu')
+                    legend1 = ax.legend(*scatter.legend_elements(),
+                                      title="Kümeler")
+                    ax.add_artist(legend1)
+                    st.pyplot(fig)
                     
                     # Küme istatistikleri
                     st.write("#### Küme İstatistikleri")
@@ -277,58 +229,33 @@ with tab3:
                     
                 except Exception as e:
                     st.error(f"Segmentasyon sırasında bir hata oluştu: {e}")
-            
-        else:
-            st.info("Lütfen bir müşteri CSV dosyası yükleyin veya örnek veri oluşturun.")
     
-    with subtab2:
-        st.subheader("Anomali Tespiti")
-        
-        # Veri yükleme kontrolü
-        if 'customer_data' not in st.session_state:
-            st.info("Lütfen önce Müşteri Segmentasyonu sekmesinden veri yükleyin veya örnek veri oluşturun.")
-        else:
-            customer_data = st.session_state['customer_data']
-            
-            # Analiz parametreleri
-            st.subheader("Analiz Parametreleri")
-            anomaly_threshold = st.slider("Anomali Eşiği (%)", 1, 10, 5) / 100
-            
-            # Analizi başlat
-            if st.button("Anomali Tespiti Başlat"):
-                try:
-                    with st.spinner("Anomaliler tespit ediliyor..."):
-                        data_with_anomalies = va.detect_customer_anomalies(customer_data.copy())
-                    
-                    st.success("Anomali tespiti tamamlandı!")
-                    
-                    # Anomali sayısını göster
-                    anomaly_count = data_with_anomalies[data_with_anomalies['anomaly'] == 1].shape[0]
-                    st.info(f"Toplam {anomaly_count} anormal müşteri tespit edildi (Tüm müşterilerin %{anomaly_count/len(data_with_anomalies)*100:.1f}'i).")
-                    
-                    # Anomalileri görselleştir
-                    fig7, ax7 = plt.subplots(figsize=(10, 6))
-                    ax7.scatter(data_with_anomalies[data_with_anomalies['anomaly'] == 0]['avg_purchase_value'], 
-                              data_with_anomalies[data_with_anomalies['anomaly'] == 0]['purchase_frequency'],
-                              alpha=0.7, c='blue', s=30, label='Normal')
-                    ax7.scatter(data_with_anomalies[data_with_anomalies['anomaly'] == 1]['avg_purchase_value'], 
-                              data_with_anomalies[data_with_anomalies['anomaly'] == 1]['purchase_frequency'],
-                              alpha=0.7, c='red', s=50, label='Anomali')
-                    ax7.set_xlabel('Ortalama Satın Alma Değeri')
-                    ax7.set_ylabel('Satın Alma Sıklığı')
-                    ax7.set_title('Müşteri Davranışında Anomaliler')
-                    ax7.legend()
-                    ax7.grid(True, alpha=0.3)
-                    create_clickable_plot(fig7, "Müşteri Anomalileri", "anomalies")
-                    
-                    # En anormal müşterileri göster
-                    st.write("#### En Anormal 5 Müşteri")
-                    top_anomalies = data_with_anomalies[data_with_anomalies['anomaly'] == 1].sort_values('anomaly_score').head(5)
-                    st.dataframe(top_anomalies[['customer_id', 'anomaly_score', 'avg_purchase_value', 'purchase_frequency', 'return_rate']])
-                    
-                except Exception as e:
-                    st.error(f"Anomali tespiti sırasında bir hata oluştu: {e}")
+    with sub_tab2:
+        # RFM analizi
+        rfm_analysis()
+    
+    with sub_tab3:
+        # Duygu analizi
+        sentiment_analysis()
 
+# Gelişmiş Analizler Sekmesi
+with tab4:
+    st.header("Gelişmiş Analizler")
+    
+    sub_tab1, sub_tab2 = st.tabs(["Karlılık Analizi", "Ürün Öneri Motoru"])
+    
+    with sub_tab1:
+        # Karlılık analizi
+        profitability_analysis()
+    
+    with sub_tab2:
+        # Öneri motoru
+        st.write("Ürün öneri motoru yakında eklenecek...")
+
+# Trendler Sekmesi
+with tab5:
+    # Trend analizi
+    trend_analysis()
 
 # Kullanım Kılavuzu sekmesi
 with tab4:
@@ -983,6 +910,7 @@ CUST_00005,12500,2,0.01,5.3""", language="csv")
         Bu yazılımda kullanılan açık kaynak bileşenleri hakkında bilgi için 'Açık Kaynak Bildirimleri' dökümanına bakınız.
         """)
 
+
 if __name__ == "__main__":
-    # Uygulama başladığında çalışacak kod
+    # Burada ihtiyaç duyulabilecek başlangıç işlemleri yapılabilir
     pass
