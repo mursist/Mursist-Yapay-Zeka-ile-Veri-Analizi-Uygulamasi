@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
 def product_recommendation():
-    st.subheader("📱 Teknolojik Ürün Öneri Motoru")
+    st.subheader("Teknolojik Ürün Öneri Motoru")
 
     df = pd.DataFrame({
         'product_id': [101, 102, 103, 104, 105, 106, 107],
@@ -26,10 +26,10 @@ def product_recommendation():
     selected_product = st.selectbox("Bir ürün seçin:", df['product_name'].tolist())
     selected_id = df[df['product_name'] == selected_product]['product_id'].values[0]
 
-    st.markdown("### 🔍 Seçilen Ürün")
+    st.markdown("### Seçilen Ürün")
     st.write(df[df['product_id'] == selected_id][['product_name', 'description']])
 
-    tfidf = TfidfVectorizer(stop_words='turkish')
+    tfidf = TfidfVectorizer() 
     tfidf_matrix = tfidf.fit_transform(df['description'])
     cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
@@ -41,5 +41,5 @@ def product_recommendation():
     product_indices = [i[0] for i in sim_scores]
     recommended = df.iloc[product_indices][['product_name', 'description']]
 
-    st.markdown("### 🤝 Benzer Ürün Önerileri")
+    st.markdown("###Benzer Ürün Önerileri")
     st.dataframe(recommended, use_container_width=True)
