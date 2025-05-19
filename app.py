@@ -274,7 +274,7 @@ with tab6:
         - **Pazarlama Stratejisi**: Müşterileri segmentlere ayırarak hedefli pazarlama kampanyaları geliştirin
         - **Risk Yönetimi**: Anormal müşteri davranışlarını tespit ederek potansiyel sahtekarlık veya kayıpları önleyin
         - **Karar Destek**: Veri odaklı iş kararları vermek için güvenilir analizler elde edin
-        
+        - **Ürün Öneri Motoru**: Kullanıcıların ilgi alanlarına veya ürün açıklamalarına göre benzer ürün önerileri sunar
         Bu araçla, veri bilimcilerin ve analistlerin günlük olarak kullandığı gelişmiş tekniklere kolayca erişebilirsiniz.
         """)
     
@@ -282,7 +282,8 @@ with tab6:
     Bu uygulamada üç ana analiz modülü bulunmaktadır:
     - **Zaman Serisi Analizi ve Satış Tahmini**: Geçmiş verileri analiz ederek gelecek satışlarını tahmin eder
     - **Müşteri Segmentasyonu**: Benzer davranış gösteren müşterileri gruplandırır
-    - **Anomali Tespiti**: Normal müşteri davranışından sapan anormal desenleri tespit eder
+    - **Anomali Tespiti**: Normal müşteri davranışından sapan anormal desenleri tespit eder 
+    - **Benzer Ürün Öneri Motoru**: Ürün açıklamalarına veya kullanıcı girişine göre makine öğrenmesi temelli öneriler üretir
     """)
     
     # Zaman Serisi Analizi 
