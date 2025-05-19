@@ -10,6 +10,7 @@ from modules.dashboard import add_dashboard
 from modules.sales_analysis import seasonal_analysis, price_analysis
 from modules.customer_analysis import rfm_analysis, sentiment_analysis
 from modules.advanced_analytics import profitability_analysis, trend_analysis
+from modules.product_recommendation import product_recommendation
 
 st.set_page_config(page_title="Yapay Zeka ile Veri Analizi", layout="wide")
 
@@ -250,7 +251,7 @@ with tab4:
     
     with sub_tab2:
         # Öneri motoru
-        st.write("Ürün öneri motoru yakında eklenecek...")
+        product_recommendation()
 
 # Trendler Sekmesi
 with tab5:
