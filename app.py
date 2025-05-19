@@ -785,7 +785,7 @@ CUST_00005,12500,2,0.01,5.3""", language="csv")
         - Kategorik değişkenlerle doğrudan çalışamaz, önceden dönüştürülmeleri gerekir.
         - Çok düşük kirlilik oranlarında performans düşebilir.
         - Veri setinin boyutu çok küçükse güvenilirliği azalabilir.
-        """
+        """)
     
     st.write("##### 4.1.2. Local Outlier Factor (LOF) Algoritması")
     st.markdown("""
