@@ -103,54 +103,43 @@ with tab2:
                     
                     st.success("Analiz tamamlandı!")
                     
-                    # Sonuçları göster - Grafik boyutları küçültüldü
+                    # Sonuçları göster
                     st.subheader("Zaman Serisi Ayrıştırma")
                     
-                    # Grafikleri yan yana göstermek için sütunlar kullan
-                    col1, col2 = st.columns(2)
+                    # Gözlemlenen satışlar
+                    st.write("#### Gözlemlenen Satışlar")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.observed.plot(ax=ax)
+                    st.pyplot(fig)
                     
-                    with col1:
-                        # Gözlemlenen satışlar - boyutu küçültüldü
-                        st.write("#### Gözlemlenen Satışlar")
-                        fig, ax = plt.subplots(figsize=(6, 3))  # Boyut küçültüldü
-                        result.observed.plot(ax=ax)
-                        st.pyplot(fig)
+                    # Trend bileşeni
+                    st.write("#### Trend Bileşeni")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.trend.plot(ax=ax)
+                    st.pyplot(fig)
                     
-                    with col2:
-                        # Trend bileşeni - boyutu küçültüldü
-                        st.write("#### Trend Bileşeni")
-                        fig, ax = plt.subplots(figsize=(6, 3))  # Boyut küçültüldü
-                        result.trend.plot(ax=ax)
-                        st.pyplot(fig)
+                    # Mevsimsel bileşen
+                    st.write("#### Mevsimsel Bileşen")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.seasonal.plot(ax=ax)
+                    st.pyplot(fig)
                     
-                    col3, col4 = st.columns(2)
+                    # Artık bileşen
+                    st.write("#### Artık Bileşeni")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    result.resid.plot(ax=ax)
+                    st.pyplot(fig)
                     
-                    with col3:
-                        # Mevsimsel bileşen - boyutu küçültüldü
-                        st.write("#### Mevsimsel Bileşen")
-                        fig, ax = plt.subplots(figsize=(6, 3))  # Boyut küçültüldü
-                        result.seasonal.plot(ax=ax)
-                        st.pyplot(fig)
-                    
-                    with col4:
-                        # Artık bileşen - boyutu küçültüldü
-                        st.write("#### Artık Bileşeni")
-                        fig, ax = plt.subplots(figsize=(6, 3))  # Boyut küçültüldü
-                        result.resid.plot(ax=ax)
-                        st.pyplot(fig)
-                    
-                    # ARIMA tahmin sonuçları - boyutu küçültüldü
+                    # ARIMA tahmin sonuçları
                     st.subheader("ARIMA Tahmin Sonuçları")
                     
-                    fig, ax = plt.subplots(figsize=(10, 4))  # Boyut küçültüldü 
+                    fig, ax = plt.subplots(figsize=(12, 6))
                     # Son 90 gün + tahmin
                     ax.plot(sales_data.set_index('date')['sales'][-90:].index, 
                             sales_data.set_index('date')['sales'][-90:].values, 
                             label='Geçmiş Veriler')
                     ax.plot(forecast.index, forecast.values, color='red', label='Tahmin')
                     ax.set_title(f'{forecast_days} Günlük Tahmin')
-                    plt.xticks(rotation=45)  # X ekseni etiketlerini döndür
-                    plt.tight_layout()  # Grafiğin düzgün görünmesi için
                     ax.legend()
                     st.pyplot(fig)
                     
@@ -206,42 +195,37 @@ with tab3:
                     
                     st.success("Segmentasyon tamamlandı!")
                     
-                    # Sonuçları göster - Grafik boyutları küçültüldü
+                    # Sonuçları göster
                     st.subheader("Segmentasyon Sonuçları")
                     
-                    col1, col2 = st.columns([3, 2])
+                    # Küme görselleştirme
+                    st.write("#### Küme Görselleştirmesi")
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    scatter = ax.scatter(customer_data['avg_purchase_value'], 
+                                        customer_data['purchase_frequency'],
+                                        c=segmented_data['cluster'], 
+                                        cmap='viridis', 
+                                        alpha=0.6)
+                    ax.set_xlabel('Ortalama Satın Alma Değeri')
+                    ax.set_ylabel('Satın Alma Sıklığı')
+                    ax.set_title('Müşteri Segmentasyonu')
+                    legend1 = ax.legend(*scatter.legend_elements(),
+                                      title="Kümeler")
+                    ax.add_artist(legend1)
+                    st.pyplot(fig)
                     
-                    with col1:
-                        # Küme görselleştirme - boyutu küçültüldü
-                        st.write("#### Küme Görselleştirmesi")
-                        fig, ax = plt.subplots(figsize=(7, 4))  # Boyut küçültüldü
-                        scatter = ax.scatter(customer_data['avg_purchase_value'], 
-                                            customer_data['purchase_frequency'],
-                                            c=segmented_data['cluster'], 
-                                            cmap='viridis', 
-                                            alpha=0.6)
-                        ax.set_xlabel('Ortalama Satın Alma Değeri')
-                        ax.set_ylabel('Satın Alma Sıklığı')
-                        ax.set_title('Müşteri Segmentasyonu')
-                        legend1 = ax.legend(*scatter.legend_elements(),
-                                          title="Kümeler")
-                        ax.add_artist(legend1)
-                        plt.tight_layout()  # Grafiğin düzgün görünmesi için
-                        st.pyplot(fig)
+                    # Küme istatistikleri
+                    st.write("#### Küme İstatistikleri")
+                    cluster_stats = segmented_data.groupby('cluster').agg({
+                        'customer_id': 'count',
+                        'avg_purchase_value': 'mean',
+                        'purchase_frequency': 'mean',
+                        'return_rate': 'mean',
+                        'customer_value': 'mean'
+                    }).reset_index()
                     
-                    with col2:
-                        # Küme istatistikleri
-                        st.write("#### Küme İstatistikleri")
-                        cluster_stats = segmented_data.groupby('cluster').agg({
-                            'customer_id': 'count',
-                            'avg_purchase_value': 'mean',
-                            'purchase_frequency': 'mean',
-                            'return_rate': 'mean',
-                            'customer_value': 'mean'
-                        }).reset_index()
-                        
-                        cluster_stats.columns = ['Küme', 'Müşteri Sayısı', 'Ort. Satın Alma', 'Satın Alma Sıklığı', 'İade Oranı', 'Müşteri Değeri']
-                        st.dataframe(cluster_stats)
+                    cluster_stats.columns = ['Küme', 'Müşteri Sayısı', 'Ort. Satın Alma', 'Satın Alma Sıklığı', 'İade Oranı', 'Müşteri Değeri']
+                    st.dataframe(cluster_stats)
                     
                 except Exception as e:
                     st.error(f"Segmentasyon sırasında bir hata oluştu: {e}")
@@ -264,8 +248,9 @@ with tab4:
         # Karlılık analizi
         profitability_analysis()
     
-with sub_tab2:
-    "gelecek"
+    with sub_tab2:
+        # Öneri motoru
+        st.write("Ürün öneri motoru yakında eklenecek...")
 
 # Trendler Sekmesi
 with tab5:
@@ -273,7 +258,7 @@ with tab5:
     trend_analysis()
 
 # Kullanım Kılavuzu sekmesi
-with tab6:
+with tab4:
     st.header("Kullanım Kılavuzu ve Teknik Detaylar")
     
     # Genel Bakış
