@@ -9,7 +9,7 @@ def load_model():
     return SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 def product_recommendation():
-    st.subheader("📱 Teknolojik Ürün Öneri Motoru (AI Destekli)")
+    st.subheader("Teknolojik Ürün Öneri Motoru (AI Destekli)")
 
     # Örnek veri
     df = pd.DataFrame({
@@ -40,7 +40,7 @@ def product_recommendation():
         selected_product = st.selectbox("Ürün Seç:", df['product_name'])
         selected_index = df[df['product_name'] == selected_product].index[0]
         user_description = df.iloc[selected_index]['description']
-        st.markdown("#### 🌟 Seçilen Ürün")
+        st.markdown("Seçilen Ürün")
         st.dataframe(df.iloc[[selected_index]][['product_name', 'description']])
 
     else:
@@ -51,7 +51,7 @@ def product_recommendation():
                                         value=st.session_state.get('user_description', ''),
                                         height=100)
 
-    if st.button("🔍 Benzer Ürünleri Göster") and user_description:
+    if st.button("Benzer Ürünleri Göster") and user_description:
         # Embed hesaplama
         descriptions = df['description'].tolist()
         all_descriptions = descriptions + [user_description]
@@ -64,5 +64,5 @@ def product_recommendation():
         top_indices = similarities.argsort()[::-1][:3]
         recommendations = df.iloc[top_indices]
 
-        st.markdown("#### 🧐 Önerilen Benzer Ürünler")
+        st.markdown("Önerilen Benzer Ürünler")
         st.table(recommendations[['product_name', 'description']])
