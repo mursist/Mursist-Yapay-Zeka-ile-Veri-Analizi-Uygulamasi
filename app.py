@@ -259,7 +259,7 @@ with tab5:
     trend_analysis()
 
 # Kullanım Kılavuzu sekmesi
-with tab4:
+with tab6:
     st.header("Kullanım Kılavuzu ve Teknik Detaylar")
     
     # Genel Bakış
