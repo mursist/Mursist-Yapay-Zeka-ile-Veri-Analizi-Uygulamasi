@@ -265,22 +265,7 @@ with tab4:
         profitability_analysis()
     
 with sub_tab2:
-    st.subheader("📱 Teknolojik Ürün Öneri Motoru")
-
-    product_df = va.create_tech_product_data()
-
-    # Dropdown ile ürün seç
-    selected_product = st.selectbox("Bir ürün seçin:", product_df['product_name'].tolist())
-    selected_id = product_df[product_df['product_name'] == selected_product]['product_id'].values[0]
-
-    # Seçilen ürün bilgisi
-    st.markdown("### 🔍 Seçilen Ürün")
-    st.write(product_df[product_df['product_id'] == selected_id][['product_name', 'description']])
-
-    # Benzer ürün önerileri
-    st.markdown("### 🤝 Benzer Ürün Önerileri")
-    recommendations = va.recommend_similar_tech_products(product_df, selected_id)
-    st.dataframe(recommendations, use_container_width=True)
+    "gelecek"
 
 # Trendler Sekmesi
 with tab5:
