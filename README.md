@@ -1,5 +1,4 @@
-GitHub repo'nuza ekleyebileceğiniz bir README dosyası:
-markdown# Yapay Zeka ile Veri Analizi Uygulaması
+# Yapay Zeka ile Veri Analizi Uygulaması
 
 Bu uygulama, Python'da geliştirilmiş veri analizi ve yapay zeka fonksiyonlarını kullanıcı dostu bir arayüz üzerinden erişilebilir hale getirmek için tasarlanmıştır.
 
@@ -15,16 +14,21 @@ Bu uygulama, Python'da geliştirilmiş veri analizi ve yapay zeka fonksiyonları
 
 ## Kurulum
 
-```bash
 # Repo'yu klonlayın
+```bash
 git clone https://github.com/kullaniciadi/yapay-zeka-veri-analizi.git
 cd yapay-zeka-veri-analizi
-
+```
 # Gerekli paketleri yükleyin
+```bash
 pip install -r requirements.txt
+```
 
 # Uygulamayı çalıştırın
+```bash
 streamlit run app.py
+```
+
 Kullanım
 
 Ana sayfada kullanılabilir analiz modüllerini görüntüleyin
@@ -41,20 +45,22 @@ Sonuçları grafikler ve tablolar şeklinde görüntüleyin
 
 Veri Formatı
 Satış Tahminleri için CSV Formatı
+
+```bash
 date,sales,is_holiday,is_promotion,weekday,month,year
 2022-01-01,350,1,0,5,1,2022
 2022-01-02,280,0,0,6,1,2022
 ...
+```
 Müşteri Analizi için CSV Formatı
+```bash
 customer_id,avg_purchase_value,purchase_frequency,return_rate
 CUST_00001,2500,12,0.05
 CUST_00002,1800,3,0.12
 ...
-Ekran Görüntüleri
-[Burada ekran görüntüleri eklenecek]
+```
 Lisans
 MIT
-
 ## Nasıl GitHub'a Yüklersiniz
 
 1. İlk olarak, klasörleri ve dosyaları oluşturun:
@@ -62,8 +68,8 @@ MIT
 ```bash
 mkdir -p yapay-zeka-veri-analizi/modules
 cd yapay-zeka-veri-analizi
-
-Her dosyayı uygun konuma kaydedin:
+```
+2. Her dosyayı uygun konuma kaydedin:
 
 app.py ana dizine
 modül dosyaları modules/ klasörüne
@@ -71,14 +77,15 @@ veri_analizi.py ana dizine (mevcut kodunuz)
 requirements.txt ana dizine
 README.md ana dizine
 
-
-Bir Git deposu oluşturun:
-
-bashgit init
+3. Bir Git deposu oluşturun:
+```bash
+git init
 git add .
 git commit -m "İlk commit: Yapay Zeka Veri Analizi Uygulaması"
-
-GitHub'da yeni bir depo oluşturun ve yerel depoyu uzak depoya bağlayın:
-
-bashgit remote add origin https://github.com/kullaniciadi/yapay-zeka-veri-analizi.git
+```
+4. GitHub'da yeni bir depo oluşturun ve yerel depoyu uzak depoya bağlayın:
+```bash
+git remote add origin https://github.com/kullaniciadi/yapay-zeka-veri-analizi.git
 git push -u origin master
+   
+```
