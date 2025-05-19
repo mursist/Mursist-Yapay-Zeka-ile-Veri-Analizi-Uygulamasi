@@ -41,5 +41,5 @@ def product_recommendation():
     product_indices = [i[0] for i in sim_scores]
     recommended = df.iloc[product_indices][['product_name', 'description']]
 
-    st.markdown("###Benzer Ürün Önerileri")
+    st.markdown("Benzer Ürün Önerileri")
     st.dataframe(recommended, use_container_width=True)
