@@ -298,6 +298,55 @@ def segment_customers(df, n_clusters=4):
         print(f"Müşteri segmentasyonu sırasında hata oluştu: {e}")
         return df, None, None
 
+# ----------------------------------------------------------------------------
+# ÖRNEK 3: TEKNOLOJİK ÜRÜNLER İÇİN ÖNERİ MOTORU (İÇERİK TABANLI)
+# ----------------------------------------------------------------------------
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+
+def create_tech_product_data():
+    """Farklı kategorilerde teknolojik ürün verisi"""
+    return pd.DataFrame({
+        'product_id': [101, 102, 103, 104, 105, 106, 107],
+        'product_name': [
+            'Gaming Laptop', 'Ultrabook', 'Akıllı Telefon',
+            'Tablet', 'Masaüstü Bilgisayar', 'Kulaklık', 'Akıllı Saat'
+        ],
+        'description': [
+            'Intel i7 işlemci, 16GB RAM, NVIDIA RTX 3060 ekran kartı, 1TB SSD ile yüksek performanslı oyun deneyimi.',
+            'Intel i5 işlemci, 8GB RAM, hafif tasarım, 512GB SSD, uzun pil ömrü ile taşınabilirlik odaklı.',
+            'Snapdragon işlemci, 128GB hafıza, 6.5 inç ekran, Android 13, 5000mAh batarya ile güçlü akıllı telefon.',
+            '10.1 inç ekran, 4GB RAM, 64GB depolama, hafif ve taşınabilir, Android tabanlı tablet.',
+            'Ryzen 5 işlemci, 32GB RAM, 2TB SSD, 4K destekli ekran kartı ile ofis ve oyun için masaüstü bilgisayar.',
+            'Kablosuz bluetooth kulaklık, aktif gürültü engelleme, 40 saat pil ömrü.',
+            '1.43 inç AMOLED ekran, kalp ritmi takibi, adım sayar, 7 gün pil ömrü ile akıllı saat.'
+        ]
+    })
+
+def recommend_similar_tech_products(df, product_id, top_n=3):
+    """İçerik tabanlı öneri üretir"""
+    try:
+        tfidf = TfidfVectorizer(stop_words='turkish')
+        tfidf_matrix = tfidf.fit_transform(df['description'])
+        cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+        idx = df.index[df['product_id'] == product_id][0]
+        sim_scores = sorted(list(enumerate(cosine_sim[idx])), key=lambda x: x[1], reverse=True)
+        sim_scores = sim_scores[1:top_n+1]
+        product_indices = [i[0] for i in sim_scores]
+        return df.iloc[product_indices][['product_name', 'description']]
+    except Exception as e:
+        print(f"Öneri motoru hatası: {e}")
+        return pd.DataFrame()
+
+
 # Uygulama başlatıldığında çalışacak ana fonksiyon
 if __name__ == "__main__":
     print("Veri analizi modülü başarıyla yüklendi!")
+ print("\nÖRNEK 3: Ürün Öneri Motoru Çalışıyor...\n")
+    product_df = create_tech_product_data()
+    selected_product_id = 103  # Örneğin Akıllı Telefon
+    print(f"Seçilen Ürün: {product_df[product_df['product_id'] == selected_product_id]['product_name'].values[0]}")
+    recommendations = recommend_similar_tech_products(product_df, selected_product_id)
+    print("\nBenzer Ürün Önerileri:")
+    print(recommendations.to_string(index=False))
