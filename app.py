@@ -820,7 +820,61 @@ CUST_00005,12500,2,0.01,5.3""", language="csv")
         
         Anomali tespiti, doğrudan "iyi" veya "kötü" müşterileri belirlemez, sadece "farklı" olanları belirler. Bu nedenle, tespit edilen her anormalliğin bağlamda değerlendirilmesi önemlidir.
         """)
-    
+        # Benzer Ürün Öneri Motoru
+    st.subheader("5. Benzer Ürün Öneri Motoru")
+    st.write("Bu modül, ürün açıklamalarına veya kullanıcı tarafından girilen kriterlere göre semantik benzerlik analizi yaparak uygun ürün önerilerinde bulunur.")
+
+    st.write("#### 5.1. Çalışma Prensibi")
+    st.markdown("""
+    - Ürün açıklamaları `sentence-transformers` modeline (örn. `paraphrase-MiniLM-L6-v2`) dönüştürülerek sayısal vektörlere çevrilir
+    - Kullanıcı isterse ürün açıklaması girebilir ya da örnek açıklamalardan seçim yapabilir
+    - Girilen açıklama ile veri setindeki açıklamalar karşılaştırılır ve en benzer 3–5 ürün listelenir
+    - Ölçüm olarak **cosine similarity** metrik kullanılır
+    """)
+
+    st.write("#### 5.2. Veri Formatı")
+    st.markdown("""
+    Örnek veri seti aşağıdaki gibi bir yapıya sahiptir:
+
+    - `product_id`: Ürün ID'si
+    - `product_name`: Ürün adı (örn. iPhone 13 Pro)
+    - `category`: Ürün kategorisi (örn. Akıllı Telefon)
+    - `description`: Ürün açıklaması (örn. 6.1 inç OLED ekran, A15 Bionic çip, 3 arka kamera...)
+    """)
+
+    with st.expander("CSV Dosya Örneği", expanded=False):
+        st.code("""product_id,product_name,category,description
+P001,iPhone 13 Pro,Smartphone,6.1 inch OLED display, A15 Bionic chip, triple camera
+P002,Samsung Galaxy S22,Smartphone,6.1 inch AMOLED, Snapdragon processor, triple camera setup
+P003,Xiaomi 12 Pro,Smartphone,120Hz AMOLED, Snapdragon 8 Gen 1, fast charging""", language="csv")
+
+    st.write("#### 5.3. Adım Adım Kullanım")
+    st.markdown("""
+    1. **Veri Yükleme**:
+       - "Ürün Veri Seti Yükle" bölümünden CSV dosyanızı yükleyin veya örnek veriyi kullanın
+
+    2. **Açıklama Girişi**:
+       - Kullanıcı, ilgilendiği ürün açıklamasını elle girebilir veya hazır örneklerden birini seçebilir
+
+    3. **Öneri Sayısı Seçimi**:
+       - "Kaç ürün önerilsin?" parametresinden öneri adedini (örn. 3, 5) belirleyin
+
+    4. **Öneri Motorunu Çalıştırın**:
+       - "Ürün Öner" butonuna tıklayarak modelin çalışmasını başlatın
+
+    5. **Sonuçları İnceleme**:
+       - Önerilen ürünler başlık, benzerlik skoru ve açıklama bilgisiyle birlikte listelenir
+       - Her ürünün yanında "Detayları Göster" seçeneği ile daha fazla bilgi sunulur
+    """)
+
+    with st.expander("Yorumlama ve Kullanım İpuçları", expanded=False):
+        st.markdown("""
+        - **Yüksek benzerlik skoru (>0.80)** olan ürünler oldukça yakın özelliklere sahiptir
+        - **Düşük skorlu ürünler** farklı segmentte olabilir ancak yeni fırsatlar sunabilir
+        - Özelleştirilmiş açıklama girişi, müşteri ihtiyacına göre en iyi eşleşmeleri sağlar
+        - Ürün kategorisi filtrelenerek yalnızca ilgili ürünler önerilebilir (örn. sadece telefonlar)
+        - Tavsiyeler dinamik olarak güncellenir ve veri değiştikçe yeniden eğitim gerekmez (gömülü vektör yaklaşımı)
+        """)
     st.markdown("""
     ### 5. Teknik Detaylar
     
